@@ -2,7 +2,7 @@ from LSP.plugin import AbstractPlugin
 from LSP.plugin import register_plugin
 from LSP.plugin import Request
 from LSP.plugin import unregister_plugin
-from LSP.plugin.core.typing import Callable
+from LSP.plugin.core.typing import Callable, Mapping, Any, Dict
 
 
 class Deno(AbstractPlugin):
@@ -24,6 +24,24 @@ class Deno(AbstractPlugin):
                 )
                 return True
         return False
+
+    def on_pre_server_command(self, command: Mapping[str, Any], done_callback: Callable[[], None]) -> bool:
+        cmd = command["command"]
+        if cmd == "deno.cache":
+            session = self.weaksession()
+            if session:
+                view = session.window.active_view()
+                if view:
+                    referrer = session.config.map_client_path_to_server_uri(view.file_name() or "")
+                    params = {"referrer": {"uri": referrer}, "uris": list(map(_to_identifier, command["arguments"][0]))}
+                    request = Request("deno/cache", params, view, progress=True)
+                    session.send_request_task(request).then(lambda _: done_callback())
+                    return True
+        return False
+
+
+def _to_identifier(s: str) -> Dict[str, str]:
+    return {"uri": s}
 
 
 def plugin_loaded() -> None:
