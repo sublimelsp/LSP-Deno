@@ -4,8 +4,7 @@ A convenience package to take advantage of the bundled language server present i
 
 To use this package, you must have:
 
-- Sublime Text 4.
-- The [LSP](https://packagecontrol.io/packages/LSP) package. (requires https://github.com/sublimelsp/LSP/pull/1620)
+- The [LSP](https://packagecontrol.io/packages/LSP) package.
 - A [Deno runtime](https://deno.land).
 
 # Applicable Selectors
