@@ -8,5 +8,50 @@
     "command": [
         "deno",
         "lsp"
-    ]
+    ],
+    "settings": {
+        // Enables or disables the display of code lens information for implementations of items in
+        // the code.
+        "deno.codeLens.implementations": false,
+        // Enables or disables the display of code lens information for references of items in the
+        // code.
+        "deno.codeLens.references": false,
+        // Enables or disables the display of code lens information for all functions in the code.
+        "deno.codeLens.referencesAllFunctions": false,
+        // The file path to a `tsconfig.json` file. This is the equivalent to using `--config` on
+        // the command line. The path can be either be relative to the workspace, or an absolute
+        // path.
+        // **Not recommended to be set globally.**
+        "deno.config": null,
+        // The file path to an import map. This is the equivalent to using `--import-map` on the
+        // command line.
+        // [Import maps](https://deno.land/manual@v1.6.0/linking_to_external_code/import_maps)
+        // provide a way to "relocate" modules based on their specifiers. The path can either be
+        // relative to the workspace, or an absolute path.
+        // **Not recommended to be set globally.**
+        "deno.importMap": null,
+        // Determines if the internal debugging information for the Deno language server will be
+        // logged to the _Deno Language Server_ console.
+        "deno.internalDebug": false,
+        // Controls if linting information will be provided by the Deno Language Server.
+        // **Not recommended to be enabled globally.**
+        "deno.lint": false,
+        // unknown setting
+        "deno.suggest.autoImports": true,
+        // unknown setting
+        "deno.suggest.completeFunctionCalls": false,
+        // If enabled, when new hosts/origins are encountered that support import suggestions, you
+        // will be prompted to enable or disable it.  Defaults to `true`.
+        "deno.suggest.imports.autoDiscover": true,
+        // Controls which hosts are enabled for import suggestions.
+        "deno.suggest.imports.hosts": {},
+        // unknown setting
+        "deno.suggest.names": true,
+        // unknown setting
+        "deno.suggest.paths": true,
+        // Controls if code will be type checked with Deno's unstable APIs. This is the equivalent
+        // to using `--unstable` on the command line.
+        // **Not recommended to be enabled globally.**
+        "deno.unstable": false,
+    }
 }
