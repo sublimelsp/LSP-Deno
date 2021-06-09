@@ -6,13 +6,13 @@
           "/LSP-Deno.sublime-settings"
         ],
         "schema": {
-          "$id": "sublime://settings/Deno",
+          "$id": "sublime://settings/LSP-Deno",
           "allOf": [
             {
               "$ref": "sublime://settings/LSP-plugin-base"
             },
             {
-              "$ref": "sublime://settings/Deno#/definitions/PluginConfig"
+              "$ref": "sublime://settings/LSP-Deno#/definitions/PluginConfig"
             }
           ],
           "definitions": {
@@ -142,7 +142,7 @@
                 "LSP": {
                   "properties": {
                     "Deno": {
-                      "$ref": "sublime://settings/Deno#/definitions/PluginConfig"
+                      "$ref": "sublime://settings/LSP-Deno#/definitions/PluginConfig"
                     }
                   }
                 }
