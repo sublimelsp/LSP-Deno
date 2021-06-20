@@ -48,6 +48,21 @@
                       "markdownDescription": "Enables or disables the display of code lens information for all functions in the code.",
                       "type": "boolean"
                     },
+                    "deno.codeLens.test": {
+                      "default": true,
+                      "markdownDescription": "Enables or disables the display of code lenses that allow running of individual tests in the code.",
+                      "type": "boolean"
+                    },
+                    "deno.codeLens.testArgs": {
+                      "default": [
+                        "--allow-all"
+                      ],
+                      "items": {
+                        "type": "string"
+                      },
+                      "markdownDescription": "Additional arguments to use with the run test code lens.  Defaults to `[ \"--allow-all\" ]`.",
+                      "type": "array"
+                    },
                     "deno.config": {
                       "default": null,
                       "examples": [
@@ -57,6 +72,15 @@
                       ],
                       "markdownDescription": "The file path to a `tsconfig.json` file. This is the equivalent to using `--config` on the command line. The path can be either be relative to the workspace, or an absolute path.\n\n**Not recommended to be set globally.**",
                       "type": "string"
+                    },
+                    "deno.enable": {
+                      "default": false,
+                      "examples": [
+                        true,
+                        false
+                      ],
+                      "markdownDescription": "Controls if the Deno Language Server is enabled. When enabled, the extension will disable the built-in VSCode JavaScript and TypeScript language services, and will use the Deno Language Server (`deno lsp`) instead.\n\n**Not recommended to be enabled globally.**",
+                      "type": "boolean"
                     },
                     "deno.importMap": {
                       "default": null,
@@ -86,6 +110,15 @@
                       "markdownDescription": "Controls if linting information will be provided by the Deno Language Server.\n\n**Not recommended to be enabled globally.**",
                       "type": "boolean"
                     },
+                    "deno.path": {
+                      "default": null,
+                      "examples": [
+                        "/usr/bin/deno",
+                        "C:\\Program Files\\deno\\deno.exe"
+                      ],
+                      "markdownDescription": "A path to the `deno` CLI executable. By default, the extension looks for `deno` in the `PATH`, but if set, will use the path specified instead.",
+                      "type": "string"
+                    },
                     "deno.suggest.autoImports": {
                       "default": true,
                       "type": "boolean"
@@ -101,9 +134,9 @@
                     },
                     "deno.suggest.imports.hosts": {
                       "default": {},
-                      "examples": [{
+                      "examples": {
                         "https://deno.land/": true
-                      }],
+                      },
                       "markdownDescription": "Controls which hosts are enabled for import suggestions.",
                       "type": "object"
                     },

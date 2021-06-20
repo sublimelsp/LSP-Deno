@@ -18,11 +18,24 @@
         "deno.codeLens.references": false,
         // Enables or disables the display of code lens information for all functions in the code.
         "deno.codeLens.referencesAllFunctions": false,
+        // Enables or disables the display of code lenses that allow running of individual tests in
+        // the code.
+        "deno.codeLens.test": true,
+        // Additional arguments to use with the run test code lens.  Defaults to `[ "--allow-all"
+        // ]`.
+        "deno.codeLens.testArgs": [
+            "--allow-all"
+        ],
         // The file path to a `tsconfig.json` file. This is the equivalent to using `--config` on
         // the command line. The path can be either be relative to the workspace, or an absolute
         // path.
         // **Not recommended to be set globally.**
         "deno.config": null,
+        // Controls if the Deno Language Server is enabled. When enabled, the extension will disable
+        // the built-in VSCode JavaScript and TypeScript language services, and will use the Deno
+        // Language Server (`deno lsp`) instead.
+        // **Not recommended to be enabled globally.**
+        "deno.enable": false,
         // The file path to an import map. This is the equivalent to using `--import-map` on the
         // command line.
         // [Import maps](https://deno.land/manual@v1.6.0/linking_to_external_code/import_maps)
@@ -36,6 +49,9 @@
         // Controls if linting information will be provided by the Deno Language Server.
         // **Not recommended to be enabled globally.**
         "deno.lint": false,
+        // A path to the `deno` CLI executable. By default, the extension looks for `deno` in the
+        // `PATH`, but if set, will use the path specified instead.
+        "deno.path": null,
         // unknown setting
         "deno.suggest.autoImports": true,
         // unknown setting
