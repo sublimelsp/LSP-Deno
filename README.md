@@ -20,4 +20,6 @@ The Deno language server operates on the following base scopes:
 
 # Configuration
 
-You may edit the default settings by running _Preferences: LSP-Deno Settings_ from the _Command Palette_.
+The server **does not automatically start** for the scopes listed above - it's expected that you enable it for a given project by running `LSP: Enable Language Server in Project` from the _Command Palette_.
+
+You may edit the default settings by running `Preferences: LSP-Deno Settings` from the _Command Palette_.
