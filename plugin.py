@@ -3,6 +3,8 @@ from LSP.plugin import register_plugin
 from LSP.plugin import Request
 from LSP.plugin import unregister_plugin
 from LSP.plugin.core.typing import Callable, Mapping, Any, Dict
+import sublime
+import urllib.parse
 
 
 class Deno(AbstractPlugin):
@@ -17,9 +19,11 @@ class Deno(AbstractPlugin):
             if session:
                 params = {"textDocument": {"uri": uri}}
                 request = Request("deno/virtualTextDocument", params, progress=True)
+                # find_syntax_for_file will return "plain text" for unknown files
+                syntax = sublime.find_syntax_for_file(urllib.parse.urlparse(uri).path).path
                 session.send_request_async(
                     request,
-                    lambda response: callback(uri, response, 'Packages/JavaScript/TSX.sublime-syntax'),
+                    lambda response: callback(uri, response, syntax),
                     lambda err: callback("ERROR", str(err), 'Packages/Text/Plain text.tmLanguage')
                 )
                 return True
