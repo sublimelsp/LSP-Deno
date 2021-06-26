@@ -6,4 +6,4 @@ client configuration. To enable the server, run
     LSP: Enable Language Server in Project
 
 from the command palette and choose "Deno". See
-packagecontrol.io/sublimelsp/LSP-deno for more info.
+https://packagecontrol.io/packages/LSP-Deno for more info.
