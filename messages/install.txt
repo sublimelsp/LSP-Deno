@@ -1,0 +1,9 @@
+Thanks for installing.
+
+Unlike other helper packages, this helper package disables its provided
+client configuration. To enable the server, run
+
+    LSP: Enable Language Server in Project
+
+from the command palette and choose "Deno". See
+packagecontrol.io/sublimelsp/LSP-deno for more info.

@@ -1,0 +1,14 @@
+=> 1.0.2
+
+Some changes were made in the settings that require you to enable this
+language server on a per-project basis. Meaning, use the command
+
+    LSP: Enable Language Server in Project
+
+from the Command Palette to enable it per window (or project). All
+this command does is modify the project data of the window, so, you
+can do this manually as well by editing your .sublime-project, if you
+have one.
+
+This change is more in line with how the server expects to be used in
+clients.
