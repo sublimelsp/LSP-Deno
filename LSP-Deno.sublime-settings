@@ -1,6 +1,7 @@
 {
     "enabled": false,
     "selector": "source.ts.react | source.tsx | source.ts | source.js.react | source.jsx | source.js",
+    "schemes": ["file", "deno"],
     "command": ["deno", "lsp"],
     "settings": {
         // Enables or disables the display of code lens information for implementations of items in the code.
