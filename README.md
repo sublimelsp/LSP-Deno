@@ -29,16 +29,16 @@ You may edit the default settings by running `Preferences: LSP-Deno Settings` fr
 It is recommended to disable LSP-typescript when working with LSP-deno.
 
 Create a sublime project file with the following contents to disable LSP-typescript per project:
-```
+```json
 {
   "folders": [{"path": "."}],
   "settings": {
     "LSP": {
       "Deno": {
-        "enabled": true,
+        "enabled": true
       },
       "LSP-typescript": {
-        "enabled": false,
+        "enabled": false
       }
     }
   }
