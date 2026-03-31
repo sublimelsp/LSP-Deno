@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 from LSP.plugin import AbstractPlugin
 from LSP.plugin import register_plugin
 from LSP.plugin import Request
 from LSP.plugin import unregister_plugin
-from LSP.plugin.core.typing import Callable, Mapping, Any, Dict
+from LSP.plugin.core.typing import Any
+from LSP.plugin.core.typing import Callable
+from LSP.plugin.core.typing import Dict
+from LSP.plugin.core.typing import Mapping
 import sublime
 import urllib.parse
 
