@@ -3,11 +3,11 @@ from __future__ import annotations
 from LSP.plugin import AbstractPlugin
 from LSP.plugin import register_plugin
 from LSP.plugin import Request
+from LSP.plugin import text_document_identifier
 from LSP.plugin import unregister_plugin
-from LSP.plugin.core.typing import Any
-from LSP.plugin.core.typing import Callable
-from LSP.plugin.core.typing import Dict
-from LSP.plugin.core.typing import Mapping
+from typing import Any
+from typing import Callable
+from typing import Mapping
 import sublime
 import urllib.parse
 
@@ -20,8 +20,7 @@ class Deno(AbstractPlugin):
 
     def on_open_uri_async(self, uri: str, callback: Callable[[str, str, str], None]) -> bool:
         if uri.startswith("deno:"):
-            session = self.weaksession()
-            if session:
+            if (session := self.weaksession()):
                 params = {"textDocument": {"uri": uri}}
                 request = Request("deno/virtualTextDocument", params, progress=True)
                 # find_syntax_for_file will return "plain text" for unknown files
@@ -42,15 +41,11 @@ class Deno(AbstractPlugin):
                 view = session.window.active_view()
                 if view:
                     referrer = session.config.map_client_path_to_server_uri(view.file_name() or "")
-                    params = {"referrer": {"uri": referrer}, "uris": list(map(_to_identifier, command["arguments"][0]))}
+                    params = {"referrer": {"uri": referrer}, "uris": list(map(text_document_identifier, command["arguments"][0]))}
                     request = Request("deno/cache", params, view, progress=True)
                     session.send_request_task(request).then(lambda _: done_callback())
                     return True
         return False
-
-
-def _to_identifier(s: str) -> Dict[str, str]:
-    return {"uri": s}
 
 
 def plugin_loaded() -> None:
