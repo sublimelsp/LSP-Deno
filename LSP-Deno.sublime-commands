@@ -7,4 +7,12 @@
             "default": "// Settings in here override those in \"LSP-Deno/LSP-Deno.sublime-settings\"\n\n{\n\t$0\n}\n",
         },
     },
+    {
+        "caption": "LSP-Deno: Reload Import Registries Cache",
+        "command": "lsp_execute",
+        "args": {
+            "session_name": "LSP-Deno",
+            "command_name": "deno.reloadImportRegistries",
+        },
+    },
 ]
