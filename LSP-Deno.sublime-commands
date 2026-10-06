@@ -19,4 +19,8 @@
         "caption": "LSP-Deno: Run Task",
         "command": "lsp_deno_run_task",
     },
+    {
+        "caption": "LSP-Deno: Upgrade Deno",
+        "command": "lsp_deno_upgrade",
+    },
 ]
