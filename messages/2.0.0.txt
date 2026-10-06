@@ -1,0 +1,46 @@
+=> 2.0.0
+
+!!WARNING!!
+
+The name of the language server has changed from "Deno" to "LSP-Deno".
+
+This server is disabled by default and is enabled per project, so projects
+where you have enabled it before will now have it DISABLED. To enable it
+again, run
+
+    LSP: Enable Language Server in Project
+
+from the Command Palette and choose "LSP-Deno".
+
+The same applies to project-specific setting overrides - the key has to be
+changed for them to apply.
+
+Before:
+
+```
+{
+    "settings": {
+        "LSP": {
+            "Deno": {
+                "enabled": true,
+                // ...
+            }
+        }
+    }
+}
+```
+
+After:
+
+```
+{
+    "settings": {
+        "LSP": {
+            "LSP-Deno": {
+                "enabled": true,
+                // ...
+            }
+        }
+    }
+}
+```

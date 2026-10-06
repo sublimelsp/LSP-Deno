@@ -173,7 +173,7 @@
               "properties": {
                 "LSP": {
                   "properties": {
-                    "Deno": {
+                    "LSP-Deno": {
                       "$ref": "sublime://settings/LSP-Deno#/definitions/PluginConfig"
                     }
                   }
