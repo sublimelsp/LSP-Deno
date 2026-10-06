@@ -1,4 +1,4 @@
-// Sample project for manually testing LSP-Deno. Open `sample-project.sublime-project` in Sublime Text.
+// Sample project for manually testing LSP-Deno.
 //
 // - `deno:` URIs (`@uri_handler('deno')`): "Goto Definition" on `console` below opens
 //   `deno:/asset/lib.deno.shared_globals.d.ts` in a read-only tab.

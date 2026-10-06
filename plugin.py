@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+from LSP.plugin import command_handler
 from LSP.plugin import Error
 from LSP.plugin import LspPlugin
+from LSP.plugin import parse_uri
 from LSP.plugin import Promise
 from LSP.plugin import Request
 from LSP.plugin import uri_handler
 from LSP.protocol import DocumentUri
 from LSP.protocol import TextDocumentIdentifier
+from pathlib import Path
+from typing import Any
 from typing import TypedDict
+import re
 import sublime
 import urllib.parse
 
@@ -16,7 +21,49 @@ class VirtualTextDocumentParams(TypedDict):
     textDocument: TextDocumentIdentifier
 
 
+# A failing test is reported as `name => ./main_test.ts:16:6` and stack frames as `at file:///path/main_test.ts:17:3`.
+TEST_FILE_REGEX = r'(?:=> |at (?:.*\()?file://)(\S+?):(\d+):(\d+)'
+
+
 class LspDenoPlugin(LspPlugin):
+
+    @command_handler('deno.client.test')
+    def on_client_test(self, arguments: list[Any] | None) -> Promise[None]:
+        """Runs a single test. Sent by the "Run Test" and "Debug" code lenses with `[specifier, name, {inspect}]`."""
+        session = self.weaksession()
+        if not session or not arguments or len(arguments) < 2:
+            return Promise.resolve(None)
+        specifier, name = arguments[0], arguments[1]
+        options = arguments[2] if len(arguments) > 2 and isinstance(arguments[2], dict) else {}
+        scheme, file_path = parse_uri(specifier)
+        if scheme != 'file':
+            session.window.status_message(f'LSP-Deno: Cannot run tests from {specifier}')
+            return Promise.resolve(None)
+        settings = session.config.settings
+        test_args: list[str] = list(settings.get('deno.codeLens.testArgs') or [])
+        unstable = settings.get('deno.unstable')
+        if isinstance(unstable, list):
+            for feature in unstable:
+                if (flag := f'--unstable-{feature}') not in test_args:
+                    test_args.append(flag)
+        if options.get('inspect'):
+            test_args.append('--inspect-wait')
+        if '--import-map' not in test_args and (import_map := (settings.get('deno.importMap') or '').strip()):
+            test_args.extend(['--import-map', import_map])
+        # Escape the same characters as JavaScript's RegExp syntax since Deno builds a RegExp from the filter.
+        name_pattern = re.sub(r'[.*+?^${}()|[\]\\]', r'\\\g<0>', name)
+        cmd = [session.config.command[0], 'test', *test_args, '--filter', f'/^{name_pattern}$/', file_path]
+        working_dir = next(
+            (folder.path for folder in session.get_workspace_folders() if Path(folder.path) in Path(file_path).parents),
+            str(Path(file_path).parent))
+        sublime.set_timeout(lambda: session.window.run_command('exec', {
+            'cmd': cmd,
+            'working_dir': working_dir,
+            'file_regex': TEST_FILE_REGEX,
+            'env': {'NO_COLOR': '1'},
+            'kill_previous': True,
+        }))
+        return Promise.resolve(None)
 
     @uri_handler('deno')
     def on_open_deno_uri(self, uri: DocumentUri, flags: sublime.NewFileFlags) -> Promise[sublime.Sheet | None]:
