@@ -4,6 +4,7 @@ from LSP.plugin import command_handler
 from LSP.plugin import Error
 from LSP.plugin import LspPlugin
 from LSP.plugin import LspWindowCommand
+from LSP.plugin import notification_handler
 from LSP.plugin import parse_uri
 from LSP.plugin import Promise
 from LSP.plugin import Request
@@ -22,6 +23,15 @@ import urllib.parse
 
 class VirtualTextDocumentParams(TypedDict):
     textDocument: TextDocumentIdentifier
+
+
+class UpgradeAvailable(TypedDict):
+    latestVersion: str
+    isCanary: bool
+
+
+class DidUpgradeCheckParams(TypedDict):
+    upgradeAvailable: UpgradeAvailable | None
 
 
 class TaskDefinition(TypedDict):
@@ -46,6 +56,16 @@ def run_in_build_panel(window: sublime.Window, cmd: list[str], working_dir: str,
 
 
 class LspDenoPlugin(LspPlugin):
+
+    upgrade_available: UpgradeAvailable | None = None
+
+    @notification_handler('deno/didUpgradeCheck')
+    def on_did_upgrade_check(self, params: DidUpgradeCheckParams) -> None:
+        """Sent once after initialization with the result of the upgrade check. Disabled with `DENO_NO_UPDATE_CHECK`."""
+        self.upgrade_available = params['upgradeAvailable']
+        if session := self.weaksession():
+            session.set_config_status_async(
+                f"{format_version(self.upgrade_available)} available" if self.upgrade_available else '')
 
     @command_handler('deno.client.test')
     def on_client_test(self, arguments: list[Any] | None) -> Promise[None]:
@@ -146,6 +166,38 @@ class LspDenoRunTaskCommand(LspWindowCommand):
             if Path(folder) in Path(path).parents:
                 return str(Path(path).relative_to(folder))
         return path
+
+
+class LspDenoUpgradeCommand(LspWindowCommand):
+    """Upgrades Deno to the version reported by `deno/didUpgradeCheck`."""
+
+    def is_enabled(self) -> bool:
+        return bool(self._upgrade_available())
+
+    def run(self) -> None:
+        session = self.session()
+        upgrade = self._upgrade_available()
+        if not session or not upgrade:
+            return
+        message = f'Upgrade Deno to {format_version(upgrade)}?\n\nRestart the server afterwards with "LSP: Restart Server".'
+        if not sublime.ok_cancel_dialog(message, 'Upgrade', 'LSP-Deno'):
+            return
+        args = ['upgrade']
+        if upgrade['isCanary']:
+            args.append('--canary')
+        args.extend(['--version', upgrade['latestVersion']])
+        working_dir = next(iter(self.window.folders()), str(Path.home()))
+        run_in_build_panel(self.window, [session.config.command[0], *args], working_dir)
+
+    def _upgrade_available(self) -> UpgradeAvailable | None:
+        if (session := self.session()) and isinstance(plugin := session.plugin, LspDenoPlugin):
+            return plugin.upgrade_available
+        return None
+
+
+def format_version(upgrade: UpgradeAvailable) -> str:
+    # Canary versions are commit hashes.
+    return f"canary {upgrade['latestVersion'][:7]}" if upgrade['isCanary'] else upgrade['latestVersion']
 
 
 def plugin_loaded() -> None:
