@@ -15,4 +15,8 @@
             "command_name": "deno.reloadImportRegistries",
         },
     },
+    {
+        "caption": "LSP-Deno: Run Task",
+        "command": "lsp_deno_run_task",
+    },
 ]

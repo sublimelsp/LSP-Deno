@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "scripts": {
+    "greet": "echo Hello from package.json"
+  }
+}

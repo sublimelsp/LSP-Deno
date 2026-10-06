@@ -1,3 +1,14 @@
 {
-  "lock": false
+  "lock": false,
+  "tasks": {
+    "hello": "echo Hello from deno.json",
+    "start": {
+      "description": "Run main.ts",
+      "command": "deno run --allow-read main.ts"
+    },
+    "all": {
+      "description": "Has no command of its own, only dependencies",
+      "dependencies": ["hello", "start"]
+    }
+  }
 }
