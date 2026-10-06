@@ -3,6 +3,7 @@ from __future__ import annotations
 from LSP.plugin import command_handler
 from LSP.plugin import Error
 from LSP.plugin import LspPlugin
+from LSP.plugin import LspWindowCommand
 from LSP.plugin import parse_uri
 from LSP.plugin import Promise
 from LSP.plugin import Request
@@ -12,6 +13,7 @@ from LSP.protocol import ExecuteCommandParams
 from LSP.protocol import TextDocumentIdentifier
 from pathlib import Path
 from typing import Any
+from typing import cast
 from typing import TypedDict
 import re
 import sublime
@@ -22,8 +24,25 @@ class VirtualTextDocumentParams(TypedDict):
     textDocument: TextDocumentIdentifier
 
 
+class TaskDefinition(TypedDict):
+    name: str
+    command: str | None
+    sourceUri: DocumentUri
+    description: str | None
+
+
 # A failing test is reported as `name => ./main_test.ts:16:6` and stack frames as `at file:///path/main_test.ts:17:3`.
 TEST_FILE_REGEX = r'(?:=> |at (?:.*\()?file://)(\S+?):(\d+):(\d+)'
+
+
+def run_in_build_panel(window: sublime.Window, cmd: list[str], working_dir: str, file_regex: str = '') -> None:
+    sublime.set_timeout(lambda: window.run_command('exec', cast(sublime.CommandArgs, {
+        'cmd': cmd,
+        'working_dir': working_dir,
+        'file_regex': file_regex,
+        'env': {'NO_COLOR': '1'},
+        'kill_previous': True,
+    })))
 
 
 class LspDenoPlugin(LspPlugin):
@@ -57,13 +76,7 @@ class LspDenoPlugin(LspPlugin):
         working_dir = next(
             (folder.path for folder in session.get_workspace_folders() if Path(folder.path) in Path(file_path).parents),
             str(Path(file_path).parent))
-        sublime.set_timeout(lambda: session.window.run_command('exec', {
-            'cmd': cmd,
-            'working_dir': working_dir,
-            'file_regex': TEST_FILE_REGEX,
-            'env': {'NO_COLOR': '1'},
-            'kill_previous': True,
-        }))
+        run_in_build_panel(session.window, cmd, working_dir, TEST_FILE_REGEX)
         return Promise.resolve(None)
 
     @command_handler('deno.client.showReferences')
@@ -95,6 +108,44 @@ class LspDenoPlugin(LspPlugin):
             return session.open_scratch_buffer(uri, response, syntax_path, flags).then(lambda view: view.sheet())
 
         return session.send_request_task(request).then(on_response)
+
+
+class LspDenoRunTaskCommand(LspWindowCommand):
+    """Lists the tasks from `deno.json` and `package.json` files known to the server and runs the selected one."""
+
+    def run(self) -> None:
+        if session := self.session():
+            request: Request[None, list[TaskDefinition] | None] = Request('deno/taskDefinitions')
+            session.send_request_task(request).then(self._on_tasks)
+
+    def _on_tasks(self, response: list[TaskDefinition] | None | Error) -> None:
+        if isinstance(response, Error) or not response:
+            self.window.status_message('LSP-Deno: No tasks found')
+            return
+        folders = self.window.folders()
+        items = [
+            sublime.QuickPanelItem(
+                task['name'],
+                details=task.get('description') or (f"$ {task['command']}" if task.get('command') else ''),
+                annotation=self._relative_path(parse_uri(task['sourceUri'])[1], folders),
+            )
+            for task in response
+        ]
+        sublime.set_timeout(lambda: self.window.show_quick_panel(items, lambda index: self._on_select(response, index)))
+
+    def _on_select(self, tasks: list[TaskDefinition], index: int) -> None:
+        if index < 0 or not (session := self.session()):
+            return
+        task = tasks[index]
+        # `deno task` finds the `deno.json` or `package.json` that defines the task in the working directory.
+        working_dir = str(Path(parse_uri(task['sourceUri'])[1]).parent)
+        run_in_build_panel(self.window, [session.config.command[0], 'task', task['name']], working_dir)
+
+    def _relative_path(self, path: str, folders: list[str]) -> str:
+        for folder in folders:
+            if Path(folder) in Path(path).parents:
+                return str(Path(path).relative_to(folder))
+        return path
 
 
 def plugin_loaded() -> None:
