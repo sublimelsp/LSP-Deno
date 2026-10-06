@@ -3,11 +3,8 @@ from __future__ import annotations
 from LSP.plugin import AbstractPlugin
 from LSP.plugin import register_plugin
 from LSP.plugin import Request
-from LSP.plugin import text_document_identifier
 from LSP.plugin import unregister_plugin
-from typing import Any
 from typing import Callable
-from typing import Mapping
 import sublime
 import urllib.parse
 
@@ -30,20 +27,6 @@ class Deno(AbstractPlugin):
                         lambda response: callback(uri, response, syntax.path),
                         lambda err: callback("ERROR", str(err), 'Packages/Text/Plain text.tmLanguage')
                     )
-                    return True
-        return False
-
-    def on_pre_server_command(self, command: Mapping[str, Any], done_callback: Callable[[], None]) -> bool:
-        cmd = command["command"]
-        if cmd == "deno.cache":
-            session = self.weaksession()
-            if session:
-                view = session.window.active_view()
-                if view:
-                    referrer = session.config.map_client_path_to_server_uri(view.file_name() or "")
-                    params = {"referrer": {"uri": referrer}, "uris": list(map(text_document_identifier, command["arguments"][0]))}
-                    request = Request("deno/cache", params, view, progress=True)
-                    session.send_request_task(request).then(lambda _: done_callback())
                     return True
         return False
 
