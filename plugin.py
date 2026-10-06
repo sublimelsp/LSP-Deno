@@ -6,8 +6,14 @@ from LSP.plugin import Promise
 from LSP.plugin import Request
 from LSP.plugin import uri_handler
 from LSP.protocol import DocumentUri
+from LSP.protocol import TextDocumentIdentifier
+from typing import TypedDict
 import sublime
 import urllib.parse
+
+
+class VirtualTextDocumentParams(TypedDict):
+    textDocument: TextDocumentIdentifier
 
 
 class LspDenoPlugin(LspPlugin):
@@ -20,8 +26,8 @@ class LspDenoPlugin(LspPlugin):
         # find_syntax_for_file will return "plain text" for unknown files
         syntax = sublime.find_syntax_for_file(urllib.parse.urlparse(uri).path)
         syntax_path = syntax.path if syntax else 'Packages/Text/Plain text.tmLanguage'
-        request: Request[dict[str, dict[str, str]], str] = Request(
-            'deno/virtualTextDocument', {'textDocument': {'uri': uri}}, progress=True)
+        params: VirtualTextDocumentParams = {'textDocument': {'uri': uri}}
+        request: Request[VirtualTextDocumentParams, str] = Request('deno/virtualTextDocument', params, progress=True)
 
         def on_response(response: str | Error) -> Promise[sublime.Sheet | None]:
             if isinstance(response, Error):
