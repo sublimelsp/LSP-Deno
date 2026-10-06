@@ -8,6 +8,7 @@ from LSP.plugin import Promise
 from LSP.plugin import Request
 from LSP.plugin import uri_handler
 from LSP.protocol import DocumentUri
+from LSP.protocol import ExecuteCommandParams
 from LSP.protocol import TextDocumentIdentifier
 from pathlib import Path
 from typing import Any
@@ -64,6 +65,17 @@ class LspDenoPlugin(LspPlugin):
             'kill_previous': True,
         }))
         return Promise.resolve(None)
+
+    @command_handler('deno.client.showReferences')
+    def on_client_show_references(self, arguments: list[Any] | None) -> Promise[None]:
+        """
+        Shows locations. Sent by the "references" and "implementations" code lenses with `[uri, position, locations]`.
+        These are the same arguments as `editor.action.showReferences`, which LSP supports natively.
+        """
+        if not (session := self.weaksession()) or not arguments:
+            return Promise.resolve(None)
+        command: ExecuteCommandParams = {'command': 'editor.action.showReferences', 'arguments': arguments}
+        return session.execute_command(command, view=session.window.active_view()).then(lambda _: None)
 
     @uri_handler('deno')
     def on_open_deno_uri(self, uri: DocumentUri, flags: sublime.NewFileFlags) -> Promise[sublime.Sheet | None]:
