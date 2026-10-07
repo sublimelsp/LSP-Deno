@@ -46,7 +46,7 @@ TEST_FILE_REGEX = r'(?:=> |at (?:.*\()?file://)(\S+?):(\d+):(\d+)'
 
 
 def run_in_build_panel(window: sublime.Window, cmd: list[str], working_dir: str, file_regex: str = '') -> None:
-    sublime.set_timeout(lambda: window.run_command('exec', cast(sublime.CommandArgs, {
+    sublime.set_timeout(lambda: window.run_command('exec', cast(dict[str, Any], {
         'cmd': cmd,
         'working_dir': working_dir,
         'file_regex': file_regex,
