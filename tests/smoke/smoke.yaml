@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/sublimelsp/lsp_smoke_test/v1/smoke.schema.json
+file: sample.ts
+# TS2322: Type 'string' is not assignable to type 'number'.
+expected_diagnostics:
+  source: deno-ts
+  code: 2322
+settings:
+  # The server is disabled by default.
+  LSP-Deno.sublime-settings:
+    enabled: true
